@@ -1,116 +1,66 @@
 "use strict";
 
-// global to hold the User instance of the currently-logged-in user
-let currentUser;
+// This is the global list of the stories, an instance of StoryList
+let storyList;
 
-/******************************************************************************
- * User login/signup/login
- */
+/** Get and show stories when site first loads. */
 
-/** Handle login form submission. If login ok, sets up the user instance */
+async function getAndShowStoriesOnStart() {
+  storyList = await StoryList.getStories();
+  $storiesLoadingMsg.remove();
 
-async function login(evt) {
-  console.debug("login", evt);
-  evt.preventDefault();
-
-  // grab the username and password
-  const username = $("#login-username").val();
-  const password = $("#login-password").val();
-
-  // User.login retrieves user info from API and returns User instance
-  // which we'll make the globally-available, logged-in user.
-  currentUser = await User.login(username, password);
-
-  $loginForm.trigger("reset");
-
-  saveUserCredentialsInLocalStorage();
-  updateUIOnUserLogin();
+  putStoriesOnPage();
 }
 
-$loginForm.on("submit", login);
-
-/** Handle signup form submission. */
-
-async function signup(evt) {
-  console.debug("signup", evt);
-  evt.preventDefault();
-
-  const name = $("#signup-name").val();
-  const username = $("#signup-username").val();
-  const password = $("#signup-password").val();
-
-  // User.signup retrieves user info from API and returns User instance
-  // which we'll make the globally-available, logged-in user.
-  currentUser = await User.signup(username, password, name);
-
-  saveUserCredentialsInLocalStorage();
-  updateUIOnUserLogin();
-
-  $signupForm.trigger("reset");
-}
-
-$signupForm.on("submit", signup);
-
-/** Handle click of logout button
+/**
+ * A render method to render HTML for an individual Story instance
+ * - story: an instance of Story
  *
- * Remove their credentials from localStorage and refresh page
+ * Returns the markup for the story.
  */
 
-function logout(evt) {
-  console.debug("logout", evt);
-  localStorage.clear();
-  location.reload();
+function generateStoryMarkup(story) {
+  console.debug("generateStoryMarkup", story);
+
+  const hostName = story.getHostName();
+  return $(`
+      <li id="${story.storyId}">
+        <a href="${story.url}" target="a_blank" class="story-link">
+          ${story.title}
+        </a>
+        <small class="story-hostname">(${hostName})</small>
+        <small class="story-author">by ${story.author}</small>
+        <small class="story-user">posted by ${story.username}</small>
+      </li>
+    `);
 }
 
-$navLogOut.on("click", logout);
+//Need to add code here
 
-/******************************************************************************
- * Storing/recalling previously-logged-in-user with localStorage
- */
-
-/** If there are user credentials in local storage, use those to log in
- * that user. This is meant to be called on page load, just once.
- */
-
-async function checkForRememberedUser() {
-  console.debug("checkForRememberedUser");
-  const token = localStorage.getItem("token");
-  const username = localStorage.getItem("username");
-  if (!token || !username) return false;
-
-  // try to log in with these credentials (will be null if login failed)
-  currentUser = await User.loginViaStoredCredentials(token, username);
+function getDeleteBtnHTML() {
+  
 }
 
-/** Sync current user information to localStorage.
- *
- * We store the username/token in localStorage so when the page is refreshed
- * (or the user revisits the site later), they will still be logged in.
- */
+function getStarHTML() {
+  
+}
 
-function saveUserCredentialsInLocalStorage() {
-  console.debug("saveUserCredentialsInLocalStorage");
-  if (currentUser) {
-    localStorage.setItem("token", currentUser.loginToken);
-    localStorage.setItem("username", currentUser.username);
+/** Gets list of stories from server, generates their HTML, and puts on page. */
+
+function putStoriesOnPage() {
+  console.debug("putStoriesOnPage");
+
+  $allStoriesList.empty();
+
+  // loop through all of our stories and generate HTML for them
+  for (let story of storyList.stories) {
+    const $story = generateStoryMarkup(story);
+    $allStoriesList.append($story);
   }
-}
-
-/******************************************************************************
- * General UI stuff about users
- */
-
-/** When a user signs up or registers, we want to set up the UI for them:
- *
- * - show the stories list
- * - update nav bar options for logged-in user
- * - generate the user profile part of the page
- */
-
-function updateUIOnUserLogin() {
-  console.debug("updateUIOnUserLogin");
 
   $allStoriesList.show();
-
-  updateNavOnLogin();
 }
+
+//Need to add code here
+//For deleting story, re-generate story list, 
+//submit new story form

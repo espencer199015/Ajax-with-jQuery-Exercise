@@ -14,6 +14,19 @@ function navAllStories(evt) {
 
 $body.on("click", "#nav-all", navAllStories);
 
+//Need to add code here
+function navSubmitStoryClick() {
+  
+}
+
+function navFavoritesClick() {
+  
+}
+
+function navMyStories() {
+  
+}
+
 /** Show login/signup on click on "login" */
 
 function navLoginClick(evt) {
@@ -25,12 +38,12 @@ function navLoginClick(evt) {
 
 $navLogin.on("click", navLoginClick);
 
-/** When a user first logins in, update the navbar to reflect that. */
+//Need to add code here
+
+function navProfileClick() {
+  
+}
 
 function updateNavOnLogin() {
-  console.debug("updateNavOnLogin");
-  $(".main-nav-links").show();
-  $navLogin.hide();
-  $navLogOut.show();
-  $navUserProfile.text(`${currentUser.username}`).show();
+  
 }
