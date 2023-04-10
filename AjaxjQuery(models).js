@@ -21,10 +21,10 @@ class Story {
     this.createdAt = createdAt;
   }
 
-  /** Parses hostname out of URL and returns it. */
-
-//Need to add code here
+  /** Parses hostname out of URL and returns it. **/
+  //code added here
 getHostName() {
+  return new URL(this.url).host;
   }
 }
 
@@ -74,8 +74,19 @@ class StoryList {
 
 // Need to add code here
 
-  async addStory() {
-    
+  async addStory(user, {title, author, url}) {
+    const token = user.loginToken;
+    const response = await axios(
+      method: "POST",
+      url: `${BASE_URL}/stories`,
+      data: {token, story: {title, author, ur}},
+    )}; 
+
+    const story = new Story(response.data.story);
+    this.stories.unshift(story);
+    user.ownStories.unshift(story);
+
+    return story;
 }
 /** Delete story from API and remove from the story lists.
    *
@@ -98,7 +109,7 @@ async removeStory(user, storyId) {
   user.ownStories = user.ownStories.filter(s => s.storyId !== storyId);
   user.favorites = user.favorites.filter(s => s.storyId !== storyId);
 }
-}
+
 
 /******************************************************************************
  * User: a user in the system (only used to represent the current user)
@@ -216,22 +227,30 @@ class User {
   }
 
 
-//Need to add code here
- addFavorite() {
-    
+//added code here
+ async addFavorite(story) {
+     this.favorites.push(story);
+    await this._addOrRemoveFavorite("add", story)
   }
 
-  async removeFavorite() {
-
+  async removeFavorite(story) {
+this.favorites = this.favorites.filter(s => s.storyId !== story.storyId);
+    await this._addOrRemoveFavorite("remove", story);
   }
 
 
-  async _addOrRemoveFavorite() {
-    
+  async _addOrRemoveFavorite(newState, story) {
+     const method = newState === "add" ? "POST" : "DELETE";
+    const token = this.loginToken;
+    await axios({
+      url: `${BASE_URL}/users/${this.username}/favorites/${story.storyId}`,
+      method: method,
+      data: { token },
+    });
   }
 
 
   isFavorite(story) {
-  
+  return this.favorites.some(s => (s.storyId === story.storyId));
   }
 }
